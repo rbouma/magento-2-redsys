@@ -13,20 +13,9 @@ use Magento\Framework\Phrase;
 class CountryIsoHelper extends AbstractHelper
 {
     /**
-     * Helper constructor.
-     * @param Context $context
-     */
-    public function __construct(
-        Context $context
-    ) {
-
-    }
-
-    /**
      * @var string
      */
     public static $language = 'en';
-
     /**
      * @var array
      *
@@ -4562,42 +4551,6 @@ class CountryIsoHelper extends AbstractHelper
                     ),
             ),
     );
-
-    /**
-     * @var array
-     *
-     * Language code => [
-     *     ISO-3166-1 alpha-2 => [
-     *         'alpha2'        => (string),
-     *         'alpha3'        => (string),
-     *         'numeric'       => (numeric),
-     *         'isd'           => (numeric),
-     *         'continentCode' => (string),
-     *         'continent'     => (string),
-     *         'country'       => (string),
-     *         'countryFull'   => (string)
-     *     ],
-     *     ...
-     * ],
-     * ...
-     */
-    private static $_countriesByLanguages = array();
-
-    /**
-     * @var array
-     */
-    private static $_supportedFields = array(
-        'alpha2',
-        'alpha3',
-        'numeric',
-        'isd',
-        'continentCode',
-        'continent',
-        'country',
-        'countryFull',
-        'emoji',
-    );
-
     /**
      * @var array
      */
@@ -4638,7 +4591,6 @@ class CountryIsoHelper extends AbstractHelper
             'en' => array('continent' => 'South America'),
         ),
     );
-
     /**
      * @var array
      */
@@ -4670,7 +4622,39 @@ class CountryIsoHelper extends AbstractHelper
         'Y' => '&#x1F1FE;',
         'Z' => '&#x1F1FF;',
     ];
-
+    /**
+     * @var array
+     *
+     * Language code => [
+     *     ISO-3166-1 alpha-2 => [
+     *         'alpha2'        => (string),
+     *         'alpha3'        => (string),
+     *         'numeric'       => (numeric),
+     *         'isd'           => (numeric),
+     *         'continentCode' => (string),
+     *         'continent'     => (string),
+     *         'country'       => (string),
+     *         'countryFull'   => (string)
+     *     ],
+     *     ...
+     * ],
+     * ...
+     */
+    private static $_countriesByLanguages = array();
+    /**
+     * @var array
+     */
+    private static $_supportedFields = array(
+        'alpha2',
+        'alpha3',
+        'numeric',
+        'isd',
+        'continentCode',
+        'continent',
+        'country',
+        'countryFull',
+        'emoji',
+    );
     /**
      * @var array
      *
@@ -4684,7 +4668,6 @@ class CountryIsoHelper extends AbstractHelper
      * ...
      */
     private static $_continentsByLanguages = array();
-
     /**
      * @var array
      */
@@ -4699,104 +4682,14 @@ class CountryIsoHelper extends AbstractHelper
     );
 
     /**
-     * @param string $language
-     * @return array
+     * Helper constructor.
+     * @param Context $context
      */
-    static function _continentsByLanguage($language = '')
+    public function __construct(
+        Context $context
+    )
     {
-        $continentsByLanguage = array();
 
-        if (empty($language) || !is_string($language)) {
-            $language = self::$language;
-        }
-
-        foreach (self::$continents as $continentKey => $continent) {
-
-            foreach ($continent as $fieldKey => $field) {
-
-                if (is_array($field) && $fieldKey === $language) {
-
-                    foreach ($field as $key => $value) {
-                        $continent[$key] = $value;
-                    }
-                }
-
-                if (is_array($field)) {
-                    unset($continent[$fieldKey]);
-                }
-            }
-
-            $continentsByLanguage[$language][$continentKey] = $continent;
-        }
-
-        self::$_continentsByLanguages = $continentsByLanguage;
-
-        return self::$_continentsByLanguages[$language];
-    }
-
-    /**
-     * @param string $language
-     * @return array
-     */
-    static function _countriesByLanguage($language = '')
-    {
-        $language = !empty($language) && is_string($language)
-            ? $language
-            : self::$language;
-        $continentsByLanguage = !empty(self::$_continentsByLanguages[$language])
-            ? self::$_continentsByLanguages[$language]
-            : self::_continentsByLanguage($language);
-        $countriesByLanguage = array();
-
-        foreach (self::$countries as $countryKey => $country) {
-
-            foreach ($country as $fieldKey => $field) {
-
-                if (is_array($field) && $fieldKey === $language) {
-
-                    foreach ($field as $key => $value) {
-                        $country[$key] = $value;
-                    }
-                }
-
-                if (is_string($field) && $fieldKey === 'continentCode') {
-                    $continentCode = $field;
-                    $country = $country + $continentsByLanguage[$continentCode];
-                }
-
-                if (is_array($field)) {
-                    unset($country[$fieldKey]);
-                }
-            }
-
-            // Add emoji
-            $country['emoji'] = self::getEmojiByAlpha2($country['alpha2']);
-
-            $countriesByLanguage[$language][$countryKey] = $country;
-        }
-
-        self::$_countriesByLanguages = $countriesByLanguage;
-
-        return self::$_countriesByLanguages[$language];
-    }
-
-    /**
-     * @param string $alpha2
-     * @return string
-     */
-    public static function getEmojiByAlpha2($alpha2 = '')
-    {
-        $rtn = '';
-        $excludedAlpha2 = [
-            'AB',
-            'OS'
-        ];
-
-        if (!empty($alpha2) && is_string($alpha2) && strlen($alpha2) === 2 && !empty(self::$countries[$alpha2]) && !in_array($alpha2, $excludedAlpha2)) {
-            $rtn = strtr($alpha2, self::$emojiMapping);
-        }
-
-        return $rtn;
     }
 
     /**
@@ -4873,6 +4766,107 @@ class CountryIsoHelper extends AbstractHelper
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $language
+     * @return array
+     */
+    static function _countriesByLanguage($language = '')
+    {
+        $language = !empty($language) && is_string($language)
+            ? $language
+            : self::$language;
+        $continentsByLanguage = !empty(self::$_continentsByLanguages[$language])
+            ? self::$_continentsByLanguages[$language]
+            : self::_continentsByLanguage($language);
+        $countriesByLanguage = array();
+
+        foreach (self::$countries as $countryKey => $country) {
+
+            foreach ($country as $fieldKey => $field) {
+
+                if (is_array($field) && $fieldKey === $language) {
+
+                    foreach ($field as $key => $value) {
+                        $country[$key] = $value;
+                    }
+                }
+
+                if (is_string($field) && $fieldKey === 'continentCode') {
+                    $continentCode = $field;
+                    $country = $country + $continentsByLanguage[$continentCode];
+                }
+
+                if (is_array($field)) {
+                    unset($country[$fieldKey]);
+                }
+            }
+
+            // Add emoji
+            $country['emoji'] = self::getEmojiByAlpha2($country['alpha2']);
+
+            $countriesByLanguage[$language][$countryKey] = $country;
+        }
+
+        self::$_countriesByLanguages = $countriesByLanguage;
+
+        return self::$_countriesByLanguages[$language];
+    }
+
+    /**
+     * @param string $language
+     * @return array
+     */
+    static function _continentsByLanguage($language = '')
+    {
+        $continentsByLanguage = array();
+
+        if (empty($language) || !is_string($language)) {
+            $language = self::$language;
+        }
+
+        foreach (self::$continents as $continentKey => $continent) {
+
+            foreach ($continent as $fieldKey => $field) {
+
+                if (is_array($field) && $fieldKey === $language) {
+
+                    foreach ($field as $key => $value) {
+                        $continent[$key] = $value;
+                    }
+                }
+
+                if (is_array($field)) {
+                    unset($continent[$fieldKey]);
+                }
+            }
+
+            $continentsByLanguage[$language][$continentKey] = $continent;
+        }
+
+        self::$_continentsByLanguages = $continentsByLanguage;
+
+        return self::$_continentsByLanguages[$language];
+    }
+
+    /**
+     * @param string $alpha2
+     * @return string
+     */
+    public static function getEmojiByAlpha2($alpha2 = '')
+    {
+        $rtn = '';
+        $excludedAlpha2 = [
+            'AB',
+            'OS'
+        ];
+
+        if (!empty($alpha2) && is_string($alpha2) && strlen($alpha2) === 2 && !empty(self::$countries[$alpha2]) && !in_array($alpha2, $excludedAlpha2)) {
+            $rtn = strtr($alpha2, self::$emojiMapping);
+        }
+
+        return $rtn;
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace Catgento\Redsys\Model\Ui;
 
-use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\Session\SessionManagerInterface;
 use Catgento\Redsys\Gateway\Config\Config;
 use Catgento\Redsys\Model\ConfigInterface;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Session\SessionManagerInterface;
 
 /**
  * Class ConfigProvider
@@ -30,9 +30,10 @@ final class ConfigProvider implements ConfigProviderInterface
      * @param SessionManagerInterface $session
      */
     public function __construct(
-        Config $config,
+        Config                  $config,
         SessionManagerInterface $session
-    ) {
+    )
+    {
         $this->config = $config;
         $this->session = $session;
     }

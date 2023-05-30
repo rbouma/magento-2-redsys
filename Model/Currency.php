@@ -40,7 +40,7 @@ class Currency
     public function getCurrencyFromCode($currencyCode)
     {
         $currencyCode = array_search($currencyCode, $this->currencies);
-        if(!$currencyCode) {
+        if (!$currencyCode) {
             $currencyCode = array_search(ConfigInterface::REDSYS_DEFAULT_CURRENCY, $this->currencies);
         }
 

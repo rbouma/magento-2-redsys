@@ -2,13 +2,13 @@
 
 namespace Catgento\Redsys\Block;
 
-use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
+use Catgento\Redsys\Model\ConfigInterface;
 use Catgento\Redsys\Model\RedsysApi;
 use Catgento\Redsys\Model\RedsysFactory;
-use Catgento\Redsys\Model\ConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class Redirect
@@ -40,11 +40,12 @@ class Redirect extends Template
      * @param array $data
      */
     public function __construct(
-        Context $context,
+        Context              $context,
         ScopeConfigInterface $scopeConfig,
-        RedsysFactory $redsysFactory,
-        array $data = []
-    ) {
+        RedsysFactory        $redsysFactory,
+        array                $data = []
+    )
+    {
         $this->scopeConfig = $scopeConfig;
         $this->redsysFactory = $redsysFactory;
         parent::__construct($context, $data);
@@ -69,6 +70,15 @@ class Redirect extends Template
     }
 
     /**
+     * @return string
+     */
+    public function getParameters()
+    {
+        $redsysObj = $this->getRedsysObject();
+        return $redsysObj->createMerchantParameters();
+    }
+
+    /**
      * @return RedsysApi
      */
     private function getRedsysObject()
@@ -77,15 +87,6 @@ class Redirect extends Template
             $this->redsysObj = $this->redsysFactory->createRedsysObject();
         }
         return $this->redsysObj;
-    }
-
-    /**
-     * @return string
-     */
-    public function getParameters()
-    {
-        $redsysObj = $this->getRedsysObject();
-        return $redsysObj->createMerchantParameters();
     }
 
     /**

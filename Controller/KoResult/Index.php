@@ -2,14 +2,14 @@
 
 namespace Catgento\Redsys\Controller\KoResult;
 
+use Catgento\Redsys\Helper\Helper;
+use Catgento\Redsys\Logger\Logger;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Checkout\Model\Session;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Catgento\Redsys\Helper\Helper;
-use Catgento\Redsys\Logger\Logger;
 
 /**
  * Class Index
@@ -51,13 +51,14 @@ class Index extends Action
      * @param Helper $helper
      * @param Logger $logger
      */
-	public function __construct(
-		Context $context,
-        Session $checkoutSession,
+    public function __construct(
+        Context                 $context,
+        Session                 $checkoutSession,
         CartRepositoryInterface $quoteRepository,
-        Helper $helper,
-        Logger $logger
-    ) {
+        Helper                  $helper,
+        Logger                  $logger
+    )
+    {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->quoteRepository = $quoteRepository;

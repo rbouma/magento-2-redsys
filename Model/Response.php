@@ -66,7 +66,7 @@ class Response
         if (isset($this->responses[$responseCode])) {
             return $this->responses[$responseCode];
         }
-        return 'Transaccion denegada codigo:'.$responseCode;
+        return 'Transaccion denegada codigo:' . $responseCode;
 
     }
 

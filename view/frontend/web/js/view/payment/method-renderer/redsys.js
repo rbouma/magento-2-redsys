@@ -10,7 +10,7 @@ define(
         $,
         Component,
         url
-        ) {
+    ) {
         'use strict';
 
         return Component.extend({
@@ -20,11 +20,11 @@ define(
             },
             redirectAfterPlaceOrder: false,
 
-            getCode: function() {
+            getCode: function () {
                 return this.code;
             },
 
-            getData: function() {
+            getData: function () {
                 return {
                     'method': this.item.method,
                     'additional_data': {}

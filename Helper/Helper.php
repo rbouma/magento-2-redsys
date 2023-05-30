@@ -2,20 +2,20 @@
 
 namespace Catgento\Redsys\Helper;
 
+use Catgento\Redsys\Model\Currency;
+use Catgento\Redsys\Model\Language;
+use Catgento\Redsys\Model\Response;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Phrase;
-use Magento\Sales\Api\OrderManagementInterface;
-use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
-use Magento\Sales\Model\Order\StatusResolver;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
-use Catgento\Redsys\Model\Language;
-use Catgento\Redsys\Model\Currency;
-use Catgento\Redsys\Model\Response;
+use Magento\Framework\Phrase;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\StatusResolver;
+use Magento\Sales\Model\OrderFactory;
 
 /**
  * Class Helper
@@ -71,15 +71,16 @@ class Helper extends AbstractHelper
      * @param Response $response
      */
     public function __construct(
-        Context $context,
-        OrderFactory $orderFactory,
-        OrderManagementInterface $orderManagement,
+        Context                            $context,
+        OrderFactory                       $orderFactory,
+        OrderManagementInterface           $orderManagement,
         OrderStatusHistoryInterfaceFactory $historyFactory,
-        StatusResolver $statusResolver,
-        Language $language,
-        Currency $currency,
-        Response $response
-    ) {
+        StatusResolver                     $statusResolver,
+        Language                           $language,
+        Currency                           $currency,
+        Response                           $response
+    )
+    {
         $this->orderFactory = $orderFactory;
         $this->orderManagement = $orderManagement;
         $this->historyFactory = $historyFactory;
@@ -132,6 +133,16 @@ class Helper extends AbstractHelper
 
     /**
      * @param OrderInterface $order
+     * @param string $state
+     * @return string
+     */
+    public function getOrderStatusByState($order, $state)
+    {
+        return $this->statusResolver->getOrderStatusByState($order, $state);
+    }
+
+    /**
+     * @param OrderInterface $order
      * @param Phrase\ $comment
      * @param string $status
      * @param bool $notified
@@ -150,16 +161,6 @@ class Helper extends AbstractHelper
         } catch (MailException $e) {
             // Fail quietly
         }
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param string $state
-     * @return string
-     */
-    public function getOrderStatusByState($order, $state)
-    {
-        return $this->statusResolver->getOrderStatusByState($order, $state);
     }
 
     /**

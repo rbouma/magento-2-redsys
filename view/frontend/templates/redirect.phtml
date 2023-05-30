@@ -13,9 +13,9 @@
 </style>
 
 <form action="<?php echo $this->getEnvironment(); ?>" method="post" id="redsys_form" name="redsys_form">
-    <input type="hidden" name="Ds_SignatureVersion" value="<?php echo $this->getSignatureVersion(); ?>" />
-    <input type="hidden" name="Ds_MerchantParameters" value="<?php echo $this->getParameters();  ?>" />
-    <input type="hidden" name="Ds_Signature" value="<?php echo $this->getSignature(); ?>" />
+    <input type="hidden" name="Ds_SignatureVersion" value="<?php echo $this->getSignatureVersion(); ?>"/>
+    <input type="hidden" name="Ds_MerchantParameters" value="<?php echo $this->getParameters(); ?>"/>
+    <input type="hidden" name="Ds_Signature" value="<?php echo $this->getSignature(); ?>"/>
 </form>
 
 <div class="redsys-message">

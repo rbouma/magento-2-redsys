@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
             <redsys>
                 <debug>1</debug>
                 <active>1</active>
                 <model>RedsysFacade</model>
-                <merchant_gateway_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <merchant_gateway_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <order_status>pending_payment</order_status>
                 <payment_action>authorize</payment_action>
                 <title>Redsys Payment Gateway</title>
@@ -27,7 +28,8 @@
                 <recovery_cart>1</recovery_cart>
 
                 <!-- This avoid send confirmation email in place order function -->
-                <order_place_redirect_url>https://sis-t.redsys.es:25443/sis/realizarPago/utf-8</order_place_redirect_url>
+                <order_place_redirect_url>https://sis-t.redsys.es:25443/sis/realizarPago/utf-8
+                </order_place_redirect_url>
             </redsys>
         </payment>
     </default>

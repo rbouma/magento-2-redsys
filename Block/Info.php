@@ -3,7 +3,6 @@
 namespace Catgento\Redsys\Block;
 
 use Magento\Framework\Phrase;
-use Magento\Payment\Model\Config as PaymentConfig;
 use Magento\Payment\Block\ConfigurableInfo;
 
 /**

@@ -2,16 +2,16 @@
 
 namespace Catgento\Redsys\Model;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Catgento\Redsys\Helper\CountryIsoHelper;
+use Catgento\Redsys\Helper\Helper;
+use Catgento\Redsys\Logger\Logger;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\SessionFactory;
-use Magento\Sales\Model\OrderFactory;
-use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Catgento\Redsys\Logger\Logger;
-use Catgento\Redsys\Helper\Helper;
-use Catgento\Redsys\Helper\CountryIsoHelper;
+use Magento\Sales\Model\OrderFactory;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class RedsysFactory
@@ -72,14 +72,15 @@ class RedsysFactory
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        CheckoutSession $checkoutSession,
-        OrderFactory $orderFactory,
-        Helper $helper,
-        UrlInterface $url,
-        Logger $logger,
-        CountryIsoHelper $countryIsoHelper,
-        SessionFactory $customerSession
-    ) {
+        CheckoutSession      $checkoutSession,
+        OrderFactory         $orderFactory,
+        Helper               $helper,
+        UrlInterface         $url,
+        Logger               $logger,
+        CountryIsoHelper     $countryIsoHelper,
+        SessionFactory       $customerSession
+    )
+    {
         $this->scopeConfig = $scopeConfig;
         $this->checkoutSession = $checkoutSession;
         $this->orderFactory = $orderFactory;
@@ -88,6 +89,46 @@ class RedsysFactory
         $this->logger = $logger;
         $this->countryIsoHelper = $countryIsoHelper;
         $this->customerSession = $customerSession;
+    }
+
+    /**
+     * @return \Catgento\Redsys\Model\RedsysApi
+     */
+    public function createRedsysObject()
+    {
+        // Get all module Configurations
+        $commerce_name = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_COMMERCE_NAME, ScopeInterface::SCOPE_STORE);
+        $commerce_num = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_COMMERCE_NUM, ScopeInterface::SCOPE_STORE);
+        $terminal = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_TERMINAL, ScopeInterface::SCOPE_STORE);
+        $trans = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_TRANSACTION_TYPE, ScopeInterface::SCOPE_STORE);
+
+        // Redirect Result URL
+        $orderId = $this->getOrder()->getIncrementId();
+        $commerce_url = $this->url->getUrl('redsys/result', ['order_id' => $orderId]);
+        $KOcommerce_url = $this->url->getUrl('redsys/koresult', ['order_id' => $orderId]);
+        $OKcommerce_url = $this->url->getUrl('redsys/okresult', ['order_id' => $orderId]);
+
+        // Setting Parameters to Redsys
+        $redsysObj = new RedsysApi();
+        $redsysObj->setParameter("DS_MERCHANT_AMOUNT", $this->getRedsysAmount());
+        $redsysObj->setParameter("DS_MERCHANT_ORDER", $this->getRedsysOrderNumber());
+        $redsysObj->setParameter("DS_MERCHANT_MERCHANTCODE", $commerce_num);
+        $redsysObj->setParameter("DS_MERCHANT_CURRENCY", $this->helper->getCurrency($this->getOrder()));
+        $redsysObj->setParameter("DS_MERCHANT_TRANSACTIONTYPE", $trans);
+        $redsysObj->setParameter("DS_MERCHANT_TERMINAL", $terminal);
+        $redsysObj->setParameter("DS_MERCHANT_MERCHANTURL", $commerce_url);
+        $redsysObj->setParameter("DS_MERCHANT_URLOK", $OKcommerce_url);
+        $redsysObj->setParameter("DS_MERCHANT_URLKO", $KOcommerce_url);
+        $redsysObj->setParameter("Ds_Merchant_ConsumerLanguage", $this->helper->getLanguage());
+        $redsysObj->setParameter("Ds_Merchant_ProductDescription", $this->getRedsysProducts());
+        $redsysObj->setParameter("Ds_Merchant_Titular", $this->getRedsysCustomer());
+        $redsysObj->setParameter("Ds_Merchant_MerchantData", sha1($commerce_url));
+        $redsysObj->setParameter("Ds_Merchant_MerchantName", $commerce_name);
+        $redsysObj->setParameter("Ds_Merchant_PayMethods", ConfigInterface::REDSYS_PAYMETHODS);
+        $redsysObj->setParameter("Ds_Merchant_Module", "catgento_redsys");
+        $redsysObj->setParameter("DS_MERCHANT_EMV3DS", $this->generateMerchantEMV3DSData());
+
+        return $redsysObj;
     }
 
     /**
@@ -141,47 +182,7 @@ class RedsysFactory
     private function getRedsysCustomer()
     {
         $order = $this->getOrder();
-        return $order->getCustomerFirstname()." ".$order->getCustomerLastname()."/ ".__("Email: ").$order->getCustomerEmail();
-    }
-
-    /**
-     * @return \Catgento\Redsys\Model\RedsysApi
-     */
-    public function createRedsysObject()
-    {
-        // Get all module Configurations
-        $commerce_name = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_COMMERCE_NAME, ScopeInterface::SCOPE_STORE);
-        $commerce_num = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_COMMERCE_NUM, ScopeInterface::SCOPE_STORE);
-        $terminal = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_TERMINAL, ScopeInterface::SCOPE_STORE);
-        $trans = $this->scopeConfig->getValue(ConfigInterface::XML_PATH_TRANSACTION_TYPE, ScopeInterface::SCOPE_STORE);
-
-        // Redirect Result URL
-        $orderId = $this->getOrder()->getIncrementId();
-        $commerce_url = $this->url->getUrl('redsys/result', ['order_id' => $orderId]);
-        $KOcommerce_url = $this->url->getUrl('redsys/koresult', ['order_id' => $orderId]);
-        $OKcommerce_url = $this->url->getUrl('redsys/okresult', ['order_id' => $orderId]);
-
-        // Setting Parameters to Redsys
-        $redsysObj = new RedsysApi();
-        $redsysObj->setParameter("DS_MERCHANT_AMOUNT", $this->getRedsysAmount());
-        $redsysObj->setParameter("DS_MERCHANT_ORDER", $this->getRedsysOrderNumber());
-        $redsysObj->setParameter("DS_MERCHANT_MERCHANTCODE", $commerce_num);
-        $redsysObj->setParameter("DS_MERCHANT_CURRENCY", $this->helper->getCurrency($this->getOrder()));
-        $redsysObj->setParameter("DS_MERCHANT_TRANSACTIONTYPE", $trans);
-        $redsysObj->setParameter("DS_MERCHANT_TERMINAL", $terminal);
-        $redsysObj->setParameter("DS_MERCHANT_MERCHANTURL", $commerce_url);
-        $redsysObj->setParameter("DS_MERCHANT_URLOK", $OKcommerce_url);
-        $redsysObj->setParameter("DS_MERCHANT_URLKO", $KOcommerce_url);
-        $redsysObj->setParameter("Ds_Merchant_ConsumerLanguage", $this->helper->getLanguage());
-        $redsysObj->setParameter("Ds_Merchant_ProductDescription", $this->getRedsysProducts());
-        $redsysObj->setParameter("Ds_Merchant_Titular", $this->getRedsysCustomer());
-        $redsysObj->setParameter("Ds_Merchant_MerchantData", sha1($commerce_url));
-        $redsysObj->setParameter("Ds_Merchant_MerchantName", $commerce_name);
-        $redsysObj->setParameter("Ds_Merchant_PayMethods", ConfigInterface::REDSYS_PAYMETHODS);
-        $redsysObj->setParameter("Ds_Merchant_Module", "catgento_redsys");
-        $redsysObj->setParameter("DS_MERCHANT_EMV3DS", $this->generateMerchantEMV3DSData());
-
-        return $redsysObj;
+        return $order->getCustomerFirstname() . " " . $order->getCustomerLastname() . "/ " . __("Email: ") . $order->getCustomerEmail();
     }
 
     public function generateMerchantEMV3DSData()

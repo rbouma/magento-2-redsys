@@ -16,17 +16,6 @@ class Language
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
-
-    /**
-     * Language constructor.
-     * @param ScopeConfigInterface $scopeConfig
-     */
-    public function __construct(
-        ScopeConfigInterface $scopeConfig
-    ) {
-        $this->scopeConfig = $scopeConfig;
-    }
-
     protected $languages = [
         'es' => '001',
         'en' => '002',
@@ -43,15 +32,14 @@ class Language
     ];
 
     /**
-     * @param string $languageWeb
-     * @return string
+     * Language constructor.
+     * @param ScopeConfigInterface $scopeConfig
      */
-    public function getLanguageByCode($languageWeb)
+    public function __construct(
+        ScopeConfigInterface $scopeConfig
+    )
     {
-        if (isset($this->languages[$languageWeb])) {
-            return $this->languages[$languageWeb];
-        }
-        return ConfigInterface::REDSYS_DEFAULT_LANGUAGE;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -67,6 +55,18 @@ class Language
             $languageTpv = $this->getLanguageByCode($languageWeb);
         }
         return $languageTpv;
+    }
+
+    /**
+     * @param string $languageWeb
+     * @return string
+     */
+    public function getLanguageByCode($languageWeb)
+    {
+        if (isset($this->languages[$languageWeb])) {
+            return $this->languages[$languageWeb];
+        }
+        return ConfigInterface::REDSYS_DEFAULT_LANGUAGE;
     }
 
 }

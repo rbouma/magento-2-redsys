@@ -20,9 +20,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        $methodCode = null,
-        $pathPattern = self::DEFAULT_PATH_PATTERN
-    ) {
+                             $methodCode = null,
+                             $pathPattern = self::DEFAULT_PATH_PATTERN
+    )
+    {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
     }
 
@@ -34,7 +35,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isActive($storeId = null)
     {
-        return (bool) $this->getValue(self::KEY_ACTIVE, $storeId);
+        return (bool)$this->getValue(self::KEY_ACTIVE, $storeId);
     }
 
 }

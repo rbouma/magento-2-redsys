@@ -4,10 +4,10 @@ namespace Catgento\Redsys\Cron;
 
 use Catgento\Redsys\Logger\Logger;
 use Catgento\Redsys\Model\ConfigInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
@@ -20,31 +20,26 @@ class CancelOrderPending
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
-     * @var FilterBuilder
-     */
-    private $filterBuilder;
-
-    /**
-     * @var FilterGroup
-     */
-    private $filterGroup;
-
     /**
      * @var Logger
      */
     protected $logger;
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+    /**
+     * @var FilterBuilder
+     */
+    private $filterBuilder;
+    /**
+     * @var FilterGroup
+     */
+    private $filterGroup;
 
     /**
      * CancelOrderPending constructor.
@@ -58,11 +53,11 @@ class CancelOrderPending
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder,
-        FilterGroup $filterGroup,
-        ScopeConfigInterface $scopeConfig,
-        Logger $logger
+        SearchCriteriaBuilder    $searchCriteriaBuilder,
+        FilterBuilder            $filterBuilder,
+        FilterGroup              $filterGroup,
+        ScopeConfigInterface     $scopeConfig,
+        Logger                   $logger
     )
     {
         $this->orderRepository = $orderRepository;

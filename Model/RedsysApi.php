@@ -9,9 +9,9 @@ class RedsysApi
     public $vars_pay = [];
 
     /******  Set parameter ******/
-    public function setParameter($key,$value)
+    public function setParameter($key, $value)
     {
-        $this->vars_pay[$key]=$value;
+        $this->vars_pay[$key] = $value;
     }
 
     /******  Get parameter ******/
@@ -27,85 +27,6 @@ class RedsysApi
     //////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    /******  3DES Function  ******/
-    public function encrypt_3DES($message, $key)
-    {
-        // Se establece un IV por defecto
-        $bytes = array(0,0,0,0,0,0,0,0); //byte [] IV = {0, 0, 0, 0, 0, 0, 0, 0}
-        $iv = implode(array_map("chr", $bytes)); //PHP 4 >= 4.0.2
-
-        // Se cifra
-        $long = ceil(strlen($message) / 16) * 16;
-        $ciphertext = substr(openssl_encrypt($message . str_repeat("\0", $long - strlen($message)), 'des-ede3-cbc', $key, OPENSSL_RAW_DATA, $iv), 0, $long);
-
-        return $ciphertext;
-    }
-
-    /******  Base64 Functions  ******/
-    public function base64_url_encode($input)
-    {
-        return strtr(base64_encode($input), '+/', '-_');
-    }
-
-    public function encodeBase64($data)
-    {
-        $data = base64_encode($data);
-        return $data;
-    }
-
-    public function base64_url_decode($input)
-    {
-        return base64_decode(strtr($input, '-_', '+/'));
-    }
-
-    public function decodeBase64($data)
-    {
-        $data = base64_decode($data);
-        return $data;
-    }
-
-    /******  MAC Function ******/
-    public function mac256($ent,$key)
-    {
-        $res = hash_hmac('sha256', $ent, $key, true);//(PHP 5 >= 5.1.2)
-        return $res;
-    }
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////	   FUNCIONES PARA LA GENERACIÓN DEL FORMULARIO DE PAGO:			  ////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-    /******  Obtener Número de pedido ******/
-    public function getOrder()
-    {
-        $numPedido = "";
-        if(empty($this->vars_pay['DS_MERCHANT_ORDER'])){
-            $numPedido = $this->vars_pay['Ds_Merchant_Order'];
-        } else {
-            $numPedido = $this->vars_pay['DS_MERCHANT_ORDER'];
-        }
-        return $numPedido;
-    }
-
-    /******  Convertir Array en Objeto JSON ******/
-    public function arrayToJson()
-    {
-        $json = json_encode($this->vars_pay); //(PHP 5 >= 5.2.0)
-        return $json;
-    }
-
-    public function createMerchantParameters()
-    {
-        // Se transforma el array de datos en un objeto Json
-        $json = $this->arrayToJson();
-        // Se codifican los datos Base64
-        return $this->encodeBase64($json);
-    }
-
     public function createMerchantSignature($key)
     {
         // Se decodifica la clave Base64
@@ -120,54 +41,71 @@ class RedsysApi
         return $this->encodeBase64($res);
     }
 
+    public function decodeBase64($data)
+    {
+        $data = base64_decode($data);
+        return $data;
+    }
+
+    public function createMerchantParameters()
+    {
+        // Se transforma el array de datos en un objeto Json
+        $json = $this->arrayToJson();
+        // Se codifican los datos Base64
+        return $this->encodeBase64($json);
+    }
+
+    /******  Convertir Array en Objeto JSON ******/
+    public function arrayToJson()
+    {
+        $json = json_encode($this->vars_pay); //(PHP 5 >= 5.2.0)
+        return $json;
+    }
+
+    public function encodeBase64($data)
+    {
+        $data = base64_encode($data);
+        return $data;
+    }
+
+    /******  3DES Function  ******/
+    public function encrypt_3DES($message, $key)
+    {
+        // Se establece un IV por defecto
+        $bytes = array(0, 0, 0, 0, 0, 0, 0, 0); //byte [] IV = {0, 0, 0, 0, 0, 0, 0, 0}
+        $iv = implode(array_map("chr", $bytes)); //PHP 4 >= 4.0.2
+
+        // Se cifra
+        $long = ceil(strlen($message) / 16) * 16;
+        $ciphertext = substr(openssl_encrypt($message . str_repeat("\0", $long - strlen($message)), 'des-ede3-cbc', $key, OPENSSL_RAW_DATA, $iv), 0, $long);
+
+        return $ciphertext;
+    }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
-    //////////// FUNCIONES PARA LA RECEPCIÓN DE DATOS DE PAGO (Notif, URLOK y URLKO): ////////////
+    ////////////	   FUNCIONES PARA LA GENERACIÓN DEL FORMULARIO DE PAGO:			  ////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     /******  Obtener Número de pedido ******/
-    public function getOrderNotif()
+    public function getOrder()
     {
         $numPedido = "";
-        if(empty($this->vars_pay['Ds_Order'])){
-            $numPedido = $this->vars_pay['DS_ORDER'];
+        if (empty($this->vars_pay['DS_MERCHANT_ORDER'])) {
+            $numPedido = $this->vars_pay['Ds_Merchant_Order'];
         } else {
-            $numPedido = $this->vars_pay['Ds_Order'];
+            $numPedido = $this->vars_pay['DS_MERCHANT_ORDER'];
         }
         return $numPedido;
     }
 
-    public function getOrderNotifSOAP($datos)
+    /******  MAC Function ******/
+    public function mac256($ent, $key)
     {
-        $posPedidoIni = strrpos($datos, "<Ds_Order>");
-        $tamPedidoIni = strlen("<Ds_Order>");
-        $posPedidoFin = strrpos($datos, "</Ds_Order>");
-        return substr($datos,$posPedidoIni + $tamPedidoIni,$posPedidoFin - ($posPedidoIni + $tamPedidoIni));
-    }
-
-    public function getRequestNotifSOAP($datos)
-    {
-        $posReqIni = strrpos($datos, "<Request");
-        $posReqFin = strrpos($datos, "</Request>");
-        $tamReqFin = strlen("</Request>");
-        return substr($datos,$posReqIni,($posReqFin + $tamReqFin) - $posReqIni);
-    }
-
-    public function getResponseNotifSOAP($datos)
-    {
-        $posReqIni = strrpos($datos, "<Response");
-        $posReqFin = strrpos($datos, "</Response>");
-        $tamReqFin = strlen("</Response>");
-        return substr($datos,$posReqIni,($posReqFin + $tamReqFin) - $posReqIni);
-    }
-
-    /******  Convertir String en Array ******/
-    public function stringToArray($datosDecod)
-    {
-        $this->vars_pay = json_decode($datosDecod, true); //(PHP 5 >= 5.2.0)
+        $res = hash_hmac('sha256', $ent, $key, true);//(PHP 5 >= 5.1.2)
+        return $res;
     }
 
     public function decodeMerchantParameters($datos)
@@ -177,6 +115,25 @@ class RedsysApi
         // Los datos decodificados se pasan al array de datos
         $this->stringToArray($decodec);
         return $decodec;
+    }
+
+    public function base64_url_decode($input)
+    {
+        return base64_decode(strtr($input, '-_', '+/'));
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    //////////// FUNCIONES PARA LA RECEPCIÓN DE DATOS DE PAGO (Notif, URLOK y URLKO): ////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    /******  Convertir String en Array ******/
+    public function stringToArray($datosDecod)
+    {
+        $this->vars_pay = json_decode($datosDecod, true); //(PHP 5 >= 5.2.0)
     }
 
     public function createMerchantSignatureNotif($key, $datos)
@@ -195,6 +152,24 @@ class RedsysApi
         return $this->base64_url_encode($res);
     }
 
+    /******  Obtener Número de pedido ******/
+    public function getOrderNotif()
+    {
+        $numPedido = "";
+        if (empty($this->vars_pay['Ds_Order'])) {
+            $numPedido = $this->vars_pay['DS_ORDER'];
+        } else {
+            $numPedido = $this->vars_pay['Ds_Order'];
+        }
+        return $numPedido;
+    }
+
+    /******  Base64 Functions  ******/
+    public function base64_url_encode($input)
+    {
+        return strtr(base64_encode($input), '+/', '-_');
+    }
+
     /******  Notificaciones SOAP ENTRADA ******/
     public function createMerchantSignatureNotifSOAPRequest($key, $datos)
     {
@@ -210,6 +185,22 @@ class RedsysApi
         return $this->encodeBase64($res);
     }
 
+    public function getRequestNotifSOAP($datos)
+    {
+        $posReqIni = strrpos($datos, "<Request");
+        $posReqFin = strrpos($datos, "</Request>");
+        $tamReqFin = strlen("</Request>");
+        return substr($datos, $posReqIni, ($posReqFin + $tamReqFin) - $posReqIni);
+    }
+
+    public function getOrderNotifSOAP($datos)
+    {
+        $posPedidoIni = strrpos($datos, "<Ds_Order>");
+        $tamPedidoIni = strlen("<Ds_Order>");
+        $posPedidoFin = strrpos($datos, "</Ds_Order>");
+        return substr($datos, $posPedidoIni + $tamPedidoIni, $posPedidoFin - ($posPedidoIni + $tamPedidoIni));
+    }
+
     /******  Notificaciones SOAP SALIDA ******/
     public function createMerchantSignatureNotifSOAPResponse($key, $datos, $numPedido)
     {
@@ -223,6 +214,14 @@ class RedsysApi
         $res = $this->mac256($datos, $key);
         // Se codifican los datos Base64
         return $this->encodeBase64($res);
+    }
+
+    public function getResponseNotifSOAP($datos)
+    {
+        $posReqIni = strrpos($datos, "<Response");
+        $posReqFin = strrpos($datos, "</Response>");
+        $tamReqFin = strlen("</Response>");
+        return substr($datos, $posReqIni, ($posReqFin + $tamReqFin) - $posReqIni);
     }
 
 }
